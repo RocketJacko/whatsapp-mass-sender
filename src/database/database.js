@@ -4,8 +4,19 @@ const fs = require('fs');
 
 class DatabaseManager {
   constructor() {
+    // Determinar la ruta de la base de datos según el entorno
+    let dbDir;
+    
+    if (process.env.NODE_ENV === 'development') {
+      // En desarrollo, usar el directorio actual
+      dbDir = path.join(process.cwd(), 'data');
+    } else {
+      // En producción (ejecutable), usar el directorio de la aplicación
+      const { app } = require('electron');
+      dbDir = path.join(app.getPath('userData'), 'data');
+    }
+    
     // Crear directorio de base de datos si no existe
-    const dbDir = path.join(process.cwd(), 'data');
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
@@ -13,7 +24,7 @@ class DatabaseManager {
     // Inicializar base de datos
     this.dbPath = path.join(dbDir, 'whatsapp_instances.db');
     this.db = new sqlite3.Database(this.dbPath);
-    this.initDatabase();
+    // initDatabase es ahora llamado con await en main.js
   }
 
   initDatabase() {
